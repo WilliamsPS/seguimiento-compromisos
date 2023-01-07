@@ -1,0 +1,35 @@
+FROM php:8.2.0-apache-buster as base
+
+RUN apt-get update \
+        && apt-get install -y \
+            g++ \
+            libicu-dev \
+            libpq-dev \
+            libzip-dev \
+            zip \
+            zlib1g-dev \
+            libpng-dev \
+            libfreetype6-dev \
+            libjpeg62-turbo-dev \
+            libwebp-dev \
+        && docker-php-ext-install \
+            intl \
+            opcache \
+            pdo \
+            pdo_pgsql \
+            pdo_mysql \
+            pgsql \
+            gd \
+            zip \
+    && apt-get clean
+
+#RUN a2enmod headers && a2enmod rewrite
+RUN echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-ram-limit.ini
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+
+FROM base as development
+
+WORKDIR /usr/src
+
+EXPOSE 8000

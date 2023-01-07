@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  back:
+    build:
+      context: .
+      dockerfile: Dockerfile.back
+      target: development
+    ports:
+        - '8000:8000'
+    command:  bash -c "composer install &&  php artisan config:clear && php artisan key:generate && php artisan serve --host 0.0.0.0 --port 8000"
+    volumes:
+      - ./src:/usr/src
+    env_file:
+    - .env
+    environment:
+    - TZ=America/Lima
+  
+  front:
+    restart: always
+    volumes:
+      - ./src:/usr/src
+    command: bash -c "npm run dev"
+    working_dir: /usr/src
+    build:
+        context: .
+        dockerfile: Dockerfile.front
+        target: development
+    environment:
+    - TZ=America/Lima
+    - NODE_ENV=development
+    env_file:
+    - .env
+    ports:
+    - "8080:8080"
